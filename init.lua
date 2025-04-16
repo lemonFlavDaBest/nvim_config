@@ -45,14 +45,12 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
 -- Load LSP configuration
 -- require("lsp.setup")
-vim.api.nvim_create_autocmd("UIEnter", {
+vim.api.nvim_create_autocmd("VeryLazy", {
   callback = function()
-    -- This will run after all plugins are loaded
     require("lsp.setup")
   end,
   once = true,
 })
-
 -- Set termguicolors only if supported
 if vim.fn.has("termguicolors") == 1 then
 	vim.opt.termguicolors = true
