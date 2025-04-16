@@ -95,24 +95,6 @@ end
 
 M.capabilities = capabilities
 
-local has_mason, mason = pcall(require, "mason")
-if not has_mason then
-  vim.notify("Mason plugin not loaded yet. LSP setup may fail.", vim.log.levels.WARN)
-  -- Try to load Mason via require (don't use Lazy command directly)
-  local lazy_ok, lazy = pcall(require, "lazy")
-  if lazy_ok then
-    -- Use the proper Lazy API to load the plugin
-    lazy.load({ plugins = { "mason.nvim" } })
-    -- Try again
-    has_mason, mason = pcall(require, "mason")
-  end
-  
-  if not has_mason then
-    -- Still not available, exit safely
-    vim.notify("Could not load Mason. Skipping LSP setup.", vim.log.levels.ERROR)
-    return
-  end
-end
 -- Now we can safely use Mason
 mason.setup({
   ui = {
