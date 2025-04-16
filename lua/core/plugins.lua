@@ -132,7 +132,7 @@ local plugins= {
 	},
 
 	-- LSP
- {
+{
   "williamboman/mason.nvim",
   lazy = false,
   priority = 100,
@@ -150,24 +150,36 @@ local plugins= {
   end,
 },
 
--- Also make sure mason-lspconfig is added
 {
   "williamboman/mason-lspconfig.nvim",
   lazy = false,
-  priority = 90, -- Slightly lower than mason
+  priority = 90,
   dependencies = { "williamboman/mason.nvim" },
+  config = function()
+    require("mason-lspconfig").setup({
+      ensure_installed = {
+        "lua_ls", "rust_analyzer", "pyright", "solidity",
+        "cssls", "html", "jsonls", "bashls", "marksman",
+      },
+      automatic_installation = true,
+    })
+  end,
 },
 
-	{
-		"neovim/nvim-lspconfig",
-		event = { "BufReadPre", "BufNewFile" },
-		dependencies = {
-			"williamboman/mason.nvim", -- Package manager for LSP/DAP/linters
-			"williamboman/mason-lspconfig.nvim", -- Integration with lspconfig
-			"folke/neodev.nvim", -- Lua LSP settings
-			"hrsh7th/cmp-nvim-lsp", -- LSP source for nvim-cmp
-		},
-	},
+{
+  "neovim/nvim-lspconfig",
+  event = { "BufReadPre", "BufNewFile" },
+  dependencies = {
+    "williamboman/mason.nvim",
+    "williamboman/mason-lspconfig.nvim",
+    "folke/neodev.nvim",
+    "hrsh7th/cmp-nvim-lsp",
+  },
+  config = function()
+    require("lsp.setup")
+  end,
+},
+
 	-- Autocompletion
 	{
 		"hrsh7th/nvim-cmp",
