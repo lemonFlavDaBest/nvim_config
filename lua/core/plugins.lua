@@ -131,54 +131,123 @@ local plugins= {
 		event = "InsertEnter",
 	},
 
-	-- LSP
-{
-  "williamboman/mason.nvim",
-  lazy = false,
-  priority = 100,
-  config = function()
-    require("mason").setup({
-      ui = {
-        border = "rounded",
-        icons = {
-          package_installed = "✓",
-          package_pending = "➜",
-          package_uninstalled = "✗",
-        },
-      },
-    })
-  end,
-},
+	-- LSP-related plugins (updated section)
+	-- Neodev - needs to be setup before lspconfig
+	{
+		"folke/neodev.nvim",
+		lazy = false,
+		priority = 100,
+		config = function()
+			require("neodev").setup({
+				library = {
+					enabled = true,
+					runtime = true,
+					types = true,
+					plugins = true,
+				},
+				setup_jsonls = true,
+				lspconfig = true,
+			})
+		end,
+	},
 
-{
-  "williamboman/mason-lspconfig.nvim",
-  lazy = false,
-  priority = 90,
-  dependencies = { "williamboman/mason.nvim" },
-  config = function()
-    require("mason-lspconfig").setup({
-      ensure_installed = {
-        "lua_ls", "rust_analyzer", "pyright", "solidity",
-        "cssls", "html", "jsonls", "bashls", "marksman",
-      },
-      automatic_installation = true,
-    })
-  end,
-},
+	-- Mason package manager for LSP
+	{
+		"williamboman/mason.nvim",
+		lazy = false,
+		priority = 90,
+		config = function()
+			require("mason").setup({
+				ui = {
+					border = "rounded",
+					icons = {
+						package_installed = "✓",
+						package_pending = "➜",
+						package_uninstalled = "✗",
+					},
+				},
+			})
+		end,
+	},
 
-{
-  "neovim/nvim-lspconfig",
-  event = { "BufReadPre", "BufNewFile" },
-  dependencies = {
-    "williamboman/mason.nvim",
-    "williamboman/mason-lspconfig.nvim",
-    "folke/neodev.nvim",
-    "hrsh7th/cmp-nvim-lsp",
-  },
-  config = function()
-    require("lsp.setup")
-  end,
-},
+	-- Mason-LSPConfig bridge
+	{
+		"williamboman/mason-lspconfig.nvim",
+		lazy = false,
+		priority = 80,
+		dependencies = { "williamboman/mason.nvim" },
+		config = function()
+			require("mason-lspconfig").setup({
+				ensure_installed = {
+					"lua_ls", 
+					"rust_analyzer", 
+					"pyright", 
+					"solidity",
+					"cssls", 
+					"html", 
+					"jsonls", 
+					"bashls", 
+					"marksman",
+				},
+				automatic_installation = true,
+			})
+		end,
+	},
+
+	-- Formatting
+	{
+		"stevearc/conform.nvim",
+		event = { "BufWritePre" },
+		cmd = { "ConformInfo" },
+		keys = {
+			{
+				"<leader>lf",
+				function()
+					require("conform").format({ async = true, lsp_fallback = true })
+				end,
+				desc = "Format current buffer",
+			},
+		},
+		priority = 70,
+		config = function()
+			require("conform").setup({
+				formatters_by_ft = {
+					lua = { "stylua" },
+					python = { "isort", "black" },
+					javascript = { "prettier" },
+					typescript = { "prettier" },
+					javascriptreact = { "prettier" },
+					typescriptreact = { "prettier" },
+					json = { "prettier" },
+					html = { "prettier" },
+					css = { "prettier" },
+					markdown = { "prettier" },
+					rust = { "rustfmt" },
+					solidity = { "prettier" },
+				},
+				format_on_save = {
+					timeout_ms = 500,
+					lsp_fallback = true,
+				},
+			})
+		end,
+	},
+
+	-- LSP Configuration
+	{
+		"neovim/nvim-lspconfig",
+		event = { "BufReadPre", "BufNewFile" },
+		dependencies = {
+			"williamboman/mason.nvim",
+			"williamboman/mason-lspconfig.nvim",
+			"folke/neodev.nvim",
+			"hrsh7th/cmp-nvim-lsp",
+		},
+		priority = 60,
+		config = function()
+			require("lsp.setup")
+		end,
+	},
 
 	-- Autocompletion
 	{
@@ -192,12 +261,6 @@ local plugins= {
 			"L3MON4D3/LuaSnip", -- Snippet engine
 			"rafamadriz/friendly-snippets", -- Snippet collection
 		},
-	},
-
-	-- Formatting
-	{
-		"stevearc/conform.nvim",
-		event = { "BufWritePre" },
 	},
 
 	-- Harpoon file navigation
