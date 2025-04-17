@@ -60,12 +60,6 @@ M.on_attach = function(client, bufnr)
 		})
 	end
 
-	-- Auto-format on save if supported by the LSP
-	if client.server_capabilities.documentFormattingProvider then
-		-- We'll use conform.nvim instead for formatting
-		-- This is handled in the main init.lua with BufWritePre autocommand
-	end
-
 	-- Disable formatting for certain LSP servers if we want to use other tools
 	if client.name == "tsserver" or client.name == "lua_ls" then
 		client.server_capabilities.documentFormattingProvider = false
@@ -94,33 +88,6 @@ if pcall(require, "cmp_nvim_lsp") then
 end
 
 M.capabilities = capabilities
-
--- Now we can safely use Mason
-mason.setup({
-  ui = {
-    border = "rounded",
-    icons = {
-      package_installed = "✓",
-      package_pending = "➜",
-      package_uninstalled = "✗",
-    },
-  },
-})
--- Configure mason-lspconfig
-require("mason-lspconfig").setup({
-	ensure_installed = {
-		"lua_ls", -- Lua
-		"rust_analyzer", -- Rust
-		"pyright", -- Python
-		"solidity", -- Solidity
-		"cssls", -- CSS
-		"html", -- HTML
-		"jsonls", -- JSON
-		"bashls", -- Bash
-		"marksman", -- Markdown
-	},
-	automatic_installation = true,
-})
 
 -- Load server specific configurations
 local lspconfig = require("lspconfig")
@@ -302,4 +269,4 @@ require("neodev").setup({
 	lspconfig = true,
 })
 
-return M
+return Meturn M
