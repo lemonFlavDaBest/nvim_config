@@ -36,21 +36,36 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 
 -- Auto-format on save with conform.nvim
 vim.api.nvim_create_autocmd("BufWritePre", {
-	group = augroup,
-	callback = function()
-		local conform = require("conform")
-		conform.format({ async = false, lsp_fallback = true })
-	end,
+  group = augroup,
+  callback = function()
+    -- Skip formatting for certain filetypes
+    local ignore_filetypes = { "sql", "text", "markdown" }
+    if vim.tbl_contains(ignore_filetypes, vim.bo.filetype) then
+      return
+    end
+    
+    -- Skip formatting for large files
+    local max_filesize = 100 * 1024 -- 100 KB
+    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(0))
+    if ok and stats and stats.size > max_filesize then
+      return
+    end
+    
+    -- Format with conform.nvim
+    local conform = require("conform")
+    conform.format({ async = false, lsp_fallback = true })
+  end,
 })
 
--- Load LSP configuration
--- require("lsp.setup")
-vim.api.nvim_create_autocmd("VeryLazy", {
+-- Load LSP configuration - Use a simpler approach that waits for lazy.nvim to finish
+vim.api.nvim_create_autocmd("User", {
+  pattern = "VeryLazy",
   callback = function()
-    require("lsp.setup")
+    -- This will run after all plugins are loaded
+    -- No need to require lsp/setup here - it will be loaded by the plugin config
   end,
-  once = true,
 })
+
 -- Set termguicolors only if supported
 if vim.fn.has("termguicolors") == 1 then
 	vim.opt.termguicolors = true
@@ -78,7 +93,4 @@ vim.api.nvim_create_autocmd("UIEnter", {
 })
 
 -- Initialize colorscheme
--- vim.cmd("colorscheme catppuccin")
--- With this safer version:
--- colorscheme catppuccin
 vim.cmd.colorscheme("catppuccin")
